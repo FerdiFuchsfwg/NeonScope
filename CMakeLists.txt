@@ -26,7 +26,10 @@ juce_add_plugin(SynthVisualizer
 
 target_sources(SynthVisualizer PRIVATE
     PluginProcessor.cpp
+    PluginProcessor.h
     PluginEditor.cpp
+    PluginEditor.h
+)
 
 target_compile_definitions(SynthVisualizer PUBLIC
     JUCE_WEB_BROWSER=0
