@@ -82,5 +82,4 @@ private:
     juce::Random rng;
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (SynthVisualizerEditor)
-    ThemeColours theme;
 };
