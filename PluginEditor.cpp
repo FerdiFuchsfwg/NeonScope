@@ -463,17 +463,20 @@ void SynthVisualizerEditor::drawSpectrum (Graphics& g, Rectangle<float> r)
 //==============================================================================
 void SynthVisualizerEditor::drawScope (Graphics& g, Rectangle<float> r)
 {
-    g.setColour (Colour (0xff070510));
+    // Theme background
+    g.setColour (theme.background);
     g.fillRect (r);
 
     const float midY = r.getCentreY();
 
-    g.setColour (Colour (0xff1c1438));
+    // Theme grid
+    g.setColour (theme.grid);
     for (int i = 1; i < 8; ++i)
     {
         const float x = r.getX() + r.getWidth() * (float) i / 8.0f;
         g.drawLine (x, r.getY(), x, r.getBottom(), 1.0f);
     }
+
     for (int i = 1; i < 4; ++i)
     {
         const float y = r.getY() + r.getHeight() * (float) i / 4.0f;
@@ -504,20 +507,29 @@ void SynthVisualizerEditor::drawScope (Graphics& g, Rectangle<float> r)
             const float s = jlimit (-1.0f, 1.0f, src[(size_t) idx] * gainValue);
             const float x = r.getX() + u * r.getWidth();
             const float y = midY - s * r.getHeight() * 0.42f;
+
             if (i == 0) p.startNewSubPath (x, y);
             else        p.lineTo (x, y);
         }
         return p;
     };
 
-    glowStroke (g, build (scopeL), Colour (0xff00e5ff), 1.6f);
-    glowStroke (g, build (scopeR), Colour (0xffff3da8), 1.6f);
+    // Theme waveform colours
+    glowStroke (g, build (scopeL), theme.waveform, 1.6f);
+    glowStroke (g, build (scopeR), theme.waveform2, 1.6f);
 }
-
 //==============================================================================
 void SynthVisualizerEditor::drawRadial (Graphics& g, Rectangle<float> r)
 {
-    ColourGradient bg (Colour (0xff150a2a), r.getCentreX(), r.getCentreY(), Colour (0xff050309), r.getX(), r.getY(), true);
+    // Theme background
+    ColourGradient bg (
+        theme.background.brighter (0.35f),
+        r.getCentreX(), r.getCentreY(),
+        theme.background.darker (0.35f),
+        r.getX(), r.getY(),
+        true
+    );
+
     g.setGradientFill (bg);
     g.fillRect (r);
 
@@ -532,26 +544,117 @@ void SynthVisualizerEditor::drawRadial (Graphics& g, Rectangle<float> r)
         const float ang = rotation + (float) s / (float) segs * MathConstants<float>::twoPi;
         const float len = bands[(size_t) idx] * m * 0.28f + 2.0f;
         const float dx = std::cos (ang), dy = std::sin (ang);
-        const Colour c = hsv ((float) s / (float) segs + (float) animTime * 0.05f, 0.8f, 1.0f);
 
-        glowLine (g, Line<float> (cx + dx * baseR, cy + dy * baseR,
-                                  cx + dx * (baseR + len), cy + dy * (baseR + len)), c, 2.5f);
+        const float position = (float) s / (float) segs;
+
+        const Colour c = theme.waveform.interpolatedWith (
+            theme.accent, position
+        );
+
+        glowLine (
+            g,
+            Line<float> (
+                cx + dx * baseR,
+                cy + dy * baseR,
+                cx + dx * (baseR + len),
+                cy + dy * (baseR + len)
+            ),
+            c,
+            2.5f
+        );
     }
 
+    // Main ring
     Path ring;
     ring.addEllipse (cx - baseR, cy - baseR, baseR * 2.0f, baseR * 2.0f);
-    glowStroke (g, ring, Colour (0xff00e5ff), 1.5f);
 
+    glowStroke (g, ring, theme.waveform, 1.5f);
+
+    // Inner glowing core
     const float core = baseR * (0.35f + 0.5f * level);
-    g.setGradientFill (ColourGradient (Colour (0xffff3da8).withAlpha (0.9f), cx, cy,
-                                       Colour (0xffff3da8).withAlpha (0.0f), cx + core, cy, true));
+
+    g.setGradientFill (
+        ColourGradient (
+            theme.sweep.withAlpha (0.9f),
+            cx, cy,
+            theme.sweep.withAlpha (0.0f),
+            cx + core, cy,
+            true
+        )
+    );
+
+    g.fillEllipse (cx - core, cy - core, core * 2.0f, core * 2.0f);
+}void SynthVisualizerEditor::drawRadial (Graphics& g, Rectangle<float> r)
+{
+    // Theme background
+    ColourGradient bg (
+        theme.background.brighter (0.35f),
+        r.getCentreX(), r.getCentreY(),
+        theme.background.darker (0.35f),
+        r.getX(), r.getY(),
+        true
+    );
+
+    g.setGradientFill (bg);
+    g.fillRect (r);
+
+    const float cx = r.getCentreX(), cy = r.getCentreY();
+    const float m = jmin (r.getWidth(), r.getHeight());
+    const float baseR = m * 0.18f * (1.0f + 0.2f * bass + 0.15f * beat);
+    const int segs = numBands * 2;
+
+    for (int s = 0; s < segs; ++s)
+    {
+        const int idx = s < numBands ? s : segs - 1 - s;
+        const float ang = rotation + (float) s / (float) segs * MathConstants<float>::twoPi;
+        const float len = bands[(size_t) idx] * m * 0.28f + 2.0f;
+        const float dx = std::cos (ang), dy = std::sin (ang);
+
+        const float position = (float) s / (float) segs;
+
+        const Colour c = theme.waveform.interpolatedWith (
+            theme.accent, position
+        );
+
+        glowLine (
+            g,
+            Line<float> (
+                cx + dx * baseR,
+                cy + dy * baseR,
+                cx + dx * (baseR + len),
+                cy + dy * (baseR + len)
+            ),
+            c,
+            2.5f
+        );
+    }
+
+    // Main ring
+    Path ring;
+    ring.addEllipse (cx - baseR, cy - baseR, baseR * 2.0f, baseR * 2.0f);
+
+    glowStroke (g, ring, theme.waveform, 1.5f);
+
+    // Inner glowing core
+    const float core = baseR * (0.35f + 0.5f * level);
+
+    g.setGradientFill (
+        ColourGradient (
+            theme.sweep.withAlpha (0.9f),
+            cx, cy,
+            theme.sweep.withAlpha (0.0f),
+            cx + core, cy,
+            true
+        )
+    );
+
     g.fillEllipse (cx - core, cy - core, core * 2.0f, core * 2.0f);
 }
-
 //==============================================================================
 void SynthVisualizerEditor::drawParticles (Graphics& g, Rectangle<float> r)
 {
-    g.setColour (Colour (0xff060410));
+    // Theme background
+    g.setColour (theme.background);
     g.fillRect (r);
 
     const float cx = r.getCentreX(), cy = r.getCentreY();
@@ -559,63 +662,48 @@ void SynthVisualizerEditor::drawParticles (Graphics& g, Rectangle<float> r)
     for (const auto& p : particles)
     {
         const float size = 2.0f + 6.0f * p.life * (0.5f + bass);
-        g.setColour (hsv (p.hue, 0.8f, 1.0f, jlimit (0.0f, 1.0f, p.life)));
-        g.fillEllipse (p.x - size * 0.5f, p.y - size * 0.5f, size, size);
+
+        const float colourPosition = jlimit (0.0f, 1.0f, p.hue);
+
+        const Colour particleColour =
+            theme.waveform.interpolatedWith (
+                theme.accent, colourPosition
+            );
+
+        g.setColour (
+            particleColour.withAlpha (
+                jlimit (0.0f, 1.0f, p.life)
+            )
+        );
+
+        g.fillEllipse (
+            p.x - size * 0.5f,
+            p.y - size * 0.5f,
+            size,
+            size
+        );
     }
 
+    // Central glowing orb
     const float orb = 30.0f + level * 70.0f + beat * 40.0f;
-    g.setGradientFill (ColourGradient (hsv ((float) animTime * 0.1f, 0.7f, 1.0f, 0.9f), cx, cy,
-                                       hsv ((float) animTime * 0.1f + 0.3f, 0.9f, 0.6f, 0.0f), cx + orb, cy, true));
-    g.fillEllipse (cx - orb, cy - orb, orb * 2.0f, orb * 2.0f);
+
+    g.setGradientFill (
+        ColourGradient (
+            theme.sweep.withAlpha (0.9f),
+            cx, cy,
+            theme.accent.withAlpha (0.0f),
+            cx + orb, cy,
+            true
+        )
+    );
+
+    g.fillEllipse (
+        cx - orb,
+        cy - orb,
+        orb * 2.0f,
+        orb * 2.0f
+    );
 }
-
-void SynthVisualizerEditor::openThemeMenu()
-{
-    PopupMenu menu;
-    PopupMenu presets;
-    PopupMenu custom;
-
-    presets.addItem (1, "Neon Green");
-    presets.addItem (2, "Electric Blue");
-    presets.addItem (3, "Cyberpunk Purple");
-    presets.addItem (4, "Neon Red");
-    presets.addItem (5, "Sunset Orange");
-    presets.addItem (6, "Monochrome");
-
-    custom.addItem (20, "Background");
-    custom.addItem (21, "Waveform");
-    custom.addItem (22, "Accent");
-    custom.addItem (23, "Grid");
-    custom.addItem (24, "Sweep");
-    custom.addItem (25, "Text");
-
-    menu.addSubMenu ("Themes", presets);
-    menu.addSubMenu ("Custom Colors", custom);
-
-    menu.addSeparator();
-    menu.addItem (30, "Reset to Default");
-
-    menu.showMenuAsync (
-        PopupMenu::Options()
-            .withTargetComponent (&themeButton),
-
-        [this] (int result)
-        {
-            if (result >= 1 && result <= 6)
-            {
-                applyTheme (result);
-            }
-            else if (result >= 20 && result <= 25)
-            {
-                openColourPicker (result - 20);
-            }
-            else if (result == 30)
-            {
-                applyTheme (1);
-            }
-        });
-}
-
 void SynthVisualizerEditor::applyTheme (int themeId)
 {
     switch (themeId)
