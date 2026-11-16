@@ -269,16 +269,23 @@ void SynthVisualizerEditor::drawSynthwave (Graphics& g, Rectangle<float> r)
     const float cx = x0 + w * 0.5f;
 
     // Himmel
-    ColourGradient sky (Colour (0xff0a0220), x0, y0, Colour (0xff8a2ab0), x0, horizon, false);
-    sky.addColour (0.65, Colour (0xff3a0a68));
+    ColourGradient sky (
+        theme.background.brighter (0.35f), x0, y0,
+        theme.background.darker (0.15f), x0, horizon, false);
+    
+    sky.addColour (0.65, theme.background);
+    
     g.setGradientFill (sky);
     g.fillRect (x0, y0, w, horizon - y0);
-
+    
     // Boden
-    ColourGradient ground (Colour (0xff1d0636), x0, horizon, Colour (0xff04010a), x0, bottom, false);
+    ColourGradient ground (
+        theme.background, x0, horizon,
+        theme.background.darker (0.65f), x0, bottom, false);
+    
     g.setGradientFill (ground);
     g.fillRect (x0, horizon, w, bottom - horizon);
-
+    
     // Sterne
     {
         Random sr (1234);
@@ -299,14 +306,16 @@ void SynthVisualizerEditor::drawSynthwave (Graphics& g, Rectangle<float> r)
     for (int k = 4; k >= 1; --k)
     {
         const float rr = sunR * (1.0f + 0.22f * (float) k);
-        g.setColour (Colour (0xffff3da8).withAlpha (0.045f + 0.03f * level));
+       g.setColour (theme.sweep.withAlpha (0.045f + 0.03f * level));
         g.fillEllipse (cx - rr, sunCy - rr, rr * 2.0f, rr * 2.0f);
     }
 
     g.saveState();
     g.reduceClipRegion (Rectangle<float> (x0, y0, w, horizon - y0).toNearestInt());
 
-    ColourGradient sunG (Colour (0xffffe94d), cx, sunCy - sunR, Colour (0xffff2d95), cx, sunCy + sunR * 0.6f, false);
+   ColourGradient sunG (
+    theme.accent.brighter (0.5f), cx, sunCy - sunR,
+    theme.sweep, cx, sunCy + sunR * 0.6f, false);
     g.setGradientFill (sunG);
     g.fillEllipse (cx - sunR, sunCy - sunR, sunR * 2.0f, sunR * 2.0f);
 
@@ -315,7 +324,7 @@ void SynthVisualizerEditor::drawSynthwave (Graphics& g, Rectangle<float> r)
         const float t = (float) i / 6.0f;
         const float sy = sunCy + sunR * (0.02f + 0.42f * t);
         const float th = (1.5f + 6.0f * t) * (0.8f + 0.6f * bass);
-        g.setColour (Colour (0xff6e1c98));
+        g.setColour (theme.background);
         g.fillRect (cx - sunR, sy, sunR * 2.0f, th);
     }
     g.restoreState();
@@ -341,12 +350,12 @@ void SynthVisualizerEditor::drawSynthwave (Graphics& g, Rectangle<float> r)
         }
         mtn.lineTo (x0 + w, horizon);
         mtn.closeSubPath();
-        g.setColour (Colour (0xff16052a));
+        g.setColour (theme.background.darker (0.35f));
         g.fillPath (mtn);
-        glowStroke (g, ridge, Colour (0xff00e5ff), 1.5f);
+        glowStroke (g, ridge, theme.waveform, 1.5f);
     }
 
-    glowLine (g, Line<float> (x0, horizon, x0 + w, horizon), Colour (0xffff3da8), 2.0f);
+   glowLine (g, Line<float> (x0, horizon, x0 + w, horizon), theme.accent, 2.0f);
 
     // Gitter
     g.saveState();
@@ -358,7 +367,7 @@ void SynthVisualizerEditor::drawSynthwave (Graphics& g, Rectangle<float> r)
     {
         const float bx = cx + (float) i * w / 12.0f;
         const float fade = jmax (0.1f, 1.0f - std::abs ((float) i) / 30.0f);
-        g.setColour (Colour (0xffd23bff).withAlpha (jlimit (0.0f, 1.0f, gridAlpha * fade)));
+        g.setColour (theme.grid.withAlpha (jlimit (0.0f, 1.0f, gridAlpha * fade)));
         g.drawLine (cx + (float) i * 2.0f, horizon, bx, bottom, 1.4f);
     }
 
@@ -367,7 +376,7 @@ void SynthVisualizerEditor::drawSynthwave (Graphics& g, Rectangle<float> r)
     {
         const float t = ((float) k + scrollPhase) / (float) hl;
         const float yy = horizon + (bottom - horizon) * std::pow (t, 2.3f);
-        g.setColour (Colour (0xff00e5ff).withAlpha (jlimit (0.0f, 1.0f, gridAlpha * (0.3f + t))));
+        g.setColour (theme.waveform.withAlpha (jlimit (0.0f, 1.0f, gridAlpha * (0.3f + t))));
         g.drawLine (x0, yy, x0 + w, yy, 0.8f + 2.0f * t);
     }
     g.restoreState();
