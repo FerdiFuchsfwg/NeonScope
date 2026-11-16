@@ -386,7 +386,15 @@ void SynthVisualizerEditor::drawSynthwave (Graphics& g, Rectangle<float> r)
 //==============================================================================
 void SynthVisualizerEditor::drawSpectrum (Graphics& g, Rectangle<float> r)
 {
-    ColourGradient bg (Colour (0xff0a0618), r.getX(), r.getY(), Colour (0xff160a2c), r.getX(), r.getBottom(), false);
+    // Theme background
+    ColourGradient bg (
+        theme.background.brighter (0.35f),
+        r.getX(), r.getY(),
+        theme.background.darker (0.25f),
+        r.getX(), r.getBottom(),
+        false
+    );
+
     g.setGradientFill (bg);
     g.fillRect (r);
 
@@ -398,21 +406,60 @@ void SynthVisualizerEditor::drawSpectrum (Graphics& g, Rectangle<float> r)
     {
         const float x = r.getX() + (float) i * bw;
         const float bh = jmax (2.0f, bands[(size_t) i] * maxH);
-        const float hue = 0.52f + 0.45f * (float) i / (float) numBands + (float) animTime * 0.02f;
-        const Colour top = hsv (hue, 0.75f, 1.0f);
-        const Colour bot = hsv (hue + 0.12f, 0.9f, 0.55f);
 
-        g.setGradientFill (ColourGradient (top, x, baseY - bh, bot, x, baseY, false));
-        g.fillRoundedRectangle (x + bw * 0.12f, baseY - bh, bw * 0.76f, bh, 2.0f);
+        const float position = (float) i / (float) numBands;
 
-        g.setGradientFill (ColourGradient (bot.withAlpha (0.35f), x, baseY, bot.withAlpha (0.0f), x, baseY + bh * 0.45f, false));
-        g.fillRect (x + bw * 0.12f, baseY + 2.0f, bw * 0.76f, bh * 0.45f);
+        // Theme-based bar colours
+        const Colour top = theme.waveform.interpolatedWith (
+            theme.accent, position
+        );
 
-        g.setColour (Colours::white.withAlpha (0.85f));
-        g.fillRect (x + bw * 0.12f, baseY - peaks[(size_t) i] * maxH - 4.0f, bw * 0.76f, 2.0f);
+        const Colour bot = theme.waveform2.interpolatedWith (
+            theme.sweep, position
+        );
+
+        // Main spectrum bars
+        g.setGradientFill (
+            ColourGradient (top, x, baseY - bh, bot, x, baseY, false)
+        );
+
+        g.fillRoundedRectangle (
+            x + bw * 0.12f,
+            baseY - bh,
+            bw * 0.76f,
+            bh,
+            2.0f
+        );
+
+        // Reflection
+        g.setGradientFill (
+            ColourGradient (
+                bot.withAlpha (0.35f),
+                x, baseY,
+                bot.withAlpha (0.0f),
+                x, baseY + bh * 0.45f,
+                false
+            )
+        );
+
+        g.fillRect (
+            x + bw * 0.12f,
+            baseY + 2.0f,
+            bw * 0.76f,
+            bh * 0.45f
+        );
+
+        // Peak indicator
+        g.setColour (theme.text.withAlpha (0.85f));
+
+        g.fillRect (
+            x + bw * 0.12f,
+            baseY - peaks[(size_t) i] * maxH - 4.0f,
+            bw * 0.76f,
+            2.0f
+        );
     }
 }
-
 //==============================================================================
 void SynthVisualizerEditor::drawScope (Graphics& g, Rectangle<float> r)
 {
