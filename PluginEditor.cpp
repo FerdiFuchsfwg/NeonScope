@@ -82,6 +82,9 @@ SynthVisualizerEditor::SynthVisualizerEditor (SynthVisualizerProcessor& p)
     setSize (900, 520);
 
     startTimerHz (60);
+
+    loadTheme();
+
 }
 
 SynthVisualizerEditor::~SynthVisualizerEditor()
@@ -95,9 +98,13 @@ void SynthVisualizerEditor::resized()
                    .removeFromTop ((int) topBar)
                    .reduced (8, 5);
 
+    // Theme-Einstellungen rechts oben
     themeButton.setBounds (
         bar.removeFromRight (32));
 
+    bar.removeFromRight (8);
+
+    // Sensitivity-Regler
     auto right = bar.removeFromRight (
         juce::jmin (360, bar.getWidth()));
 
@@ -108,6 +115,7 @@ void SynthVisualizerEditor::resized()
     gainLabel.setBounds (
         right.removeFromLeft (84));
 
+    // Visualisierungs-Auswahl links
     modeBox.setBounds (
         bar.removeFromLeft (170));
 }
@@ -363,6 +371,7 @@ void SynthVisualizerEditor::drawSynthwave (Graphics& g, Rectangle<float> r)
         g.drawLine (x0, yy, x0 + w, yy, 0.8f + 2.0f * t);
     }
     g.restoreState();
+    loadTheme();
 }
 
 //==============================================================================
@@ -706,26 +715,24 @@ void SynthVisualizerEditor::loadTheme()
 {
     auto state = proc.apvts.state;
 
-    theme.background = Colour::fromString (
-        state.getProperty ("themeBackground", "ff07050d").toString());
+    auto loadColour = [&state](const juce::Identifier& name,
+                               juce::Colour fallback)
+    {
+        auto value = state.getProperty(name);
 
-    theme.accent = Colour::fromString (
-        state.getProperty ("themeAccent", "ff00e5ff").toString());
+        if (value.isVoid())
+            return fallback;
 
-    theme.waveform = Colour::fromString (
-        state.getProperty ("themeWaveform", "ff00e5ff").toString());
+        return juce::Colour::fromString(value.toString());
+    };
 
-    theme.waveform2 = Colour::fromString (
-        state.getProperty ("themeWaveform2", "ffff3da8").toString());
+    theme.background = loadColour("themeBackground", 0xff07050d);
+    theme.accent     = loadColour("themeAccent", 0xff00e5ff);
+    theme.waveform   = loadColour("themeWaveform", 0xff00e5ff);
+    theme.waveform2  = loadColour("themeWaveform2", 0xffff3da8);
+    theme.grid       = loadColour("themeGrid", 0xff1c1438);
+    theme.sweep      = loadColour("themeSweep", 0xffff3da8);
+    theme.text       = loadColour("themeText", 0xffffffff);
 
-    theme.grid = Colour::fromString (
-        state.getProperty ("themeGrid", "ff1c1438").toString());
-
-    theme.sweep = Colour::fromString (
-        state.getProperty ("themeSweep", "ffff3da8").toString());
-
-    theme.text = Colour::fromString (
-        state.getProperty ("themeText", "ffffffff").toString());
+    repaint();
 }
-
-loadTheme();
