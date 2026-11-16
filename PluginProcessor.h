@@ -7,6 +7,17 @@
 class SynthVisualizerProcessor : public juce::AudioProcessor
 {
 public:
+    struct ThemeColours
+{
+    juce::Colour background { 0xff07050d };
+    juce::Colour accent     { 0xff00e5ff };
+    juce::Colour waveform   { 0xff00e5ff };
+    juce::Colour waveform2 { 0xffff3da8 };
+    juce::Colour grid       { 0xff1c1438 };
+    juce::Colour sweep      { 0xffff3da8 };
+    juce::Colour text       { 0xffffffff };
+};
+
     static constexpr int ringSize = 16384; // muss Zweierpotenz sein
 
     SynthVisualizerProcessor();
