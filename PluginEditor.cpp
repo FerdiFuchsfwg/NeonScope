@@ -724,24 +724,24 @@ void SynthVisualizerEditor::loadTheme()
 {
     auto state = proc.apvts.state;
 
-    auto loadColour = [&state](const juce::Identifier& name,
-                               juce::Colour fallback)
+    auto loadColour = [&state] (const juce::Identifier& name,
+                                juce::Colour fallback)
     {
-        auto value = state.getProperty(name);
+        auto value = state.getProperty (name);
 
         if (value.isVoid())
             return fallback;
 
-        return juce::Colour::fromString(value.toString());
+        return juce::Colour::fromString (value.toString());
     };
 
-    theme.background = loadColour("themeBackground", 0xff07050d);
-    theme.accent     = loadColour("themeAccent", 0xff00e5ff);
-    theme.waveform   = loadColour("themeWaveform", 0xff00e5ff);
-    theme.waveform2  = loadColour("themeWaveform2", 0xffff3da8);
-    theme.grid       = loadColour("themeGrid", 0xff1c1438);
-    theme.sweep      = loadColour("themeSweep", 0xffff3da8);
-    theme.text       = loadColour("themeText", 0xffffffff);
+    theme.background = loadColour ("themeBackground", juce::Colour (0xff07050d));
+    theme.accent     = loadColour ("themeAccent", juce::Colour (0xff00e5ff));
+    theme.waveform   = loadColour ("themeWaveform", juce::Colour (0xff00e5ff));
+    theme.waveform2  = loadColour ("themeWaveform2", juce::Colour (0xffff3da8));
+    theme.grid       = loadColour ("themeGrid", juce::Colour (0xff1c1438));
+    theme.sweep      = loadColour ("themeSweep", juce::Colour (0xffff3da8));
+    theme.text       = loadColour ("themeText", juce::Colour (0xffffffff));
 
     repaint();
 }
