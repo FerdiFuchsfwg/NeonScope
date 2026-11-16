@@ -41,6 +41,30 @@ SynthVisualizerEditor::SynthVisualizerEditor (SynthVisualizerProcessor& p)
 {
     modeBox.addItemList (StringArray { "Synthwave", "Spectrum", "Oscilloscope", "Radial", "Particles" }, 1);
     addAndMakeVisible (modeBox);
+    themeButton.setTooltip ("Theme Settings");
+    
+    themeButton.setColour (
+        TextButton::buttonColourId,
+        Colour (0xff120a24));
+    
+    themeButton.setColour (
+        TextButton::buttonOnColourId,
+        Colour (0xff252044));
+    
+    themeButton.setColour (
+        TextButton::textColourOffId,
+        Colour (0xff00e5ff));
+    
+    themeButton.setColour (
+        TextButton::textColourOnId,
+        Colours::white);
+    
+    themeButton.onClick = [this]
+    {
+        openThemeMenu();
+    };
+    
+    addAndMakeVisible (themeButton);
 
     gainSlider.setSliderStyle (Slider::LinearHorizontal);
     gainSlider.setTextBoxStyle (Slider::TextBoxRight, false, 52, 22);
@@ -67,11 +91,25 @@ SynthVisualizerEditor::~SynthVisualizerEditor()
 
 void SynthVisualizerEditor::resized()
 {
-    auto bar = getLocalBounds().removeFromTop ((int) topBar).reduced (8, 5);
-    modeBox.setBounds (bar.removeFromLeft (170));
-    auto right = bar.removeFromRight (juce::jmin (360, bar.getWidth()));
-    gainLabel.setBounds (right.removeFromLeft (84));
-    gainSlider.setBounds (right);
+    auto bar = getLocalBounds()
+                   .removeFromTop ((int) topBar)
+                   .reduced (8, 5);
+
+    themeButton.setBounds (
+        bar.removeFromRight (32));
+
+    auto right = bar.removeFromRight (
+        juce::jmin (360, bar.getWidth()));
+
+    gainSlider.setBounds (
+        right.removeFromRight (
+            juce::jmax (100, right.getWidth() - 84)));
+
+    gainLabel.setBounds (
+        right.removeFromLeft (84));
+
+    modeBox.setBounds (
+        bar.removeFromLeft (170));
 }
 
 //==============================================================================
@@ -465,3 +503,229 @@ void SynthVisualizerEditor::drawParticles (Graphics& g, Rectangle<float> r)
                                        hsv ((float) animTime * 0.1f + 0.3f, 0.9f, 0.6f, 0.0f), cx + orb, cy, true));
     g.fillEllipse (cx - orb, cy - orb, orb * 2.0f, orb * 2.0f);
 }
+
+void SynthVisualizerEditor::openThemeMenu()
+{
+    PopupMenu menu;
+    PopupMenu presets;
+    PopupMenu custom;
+
+    presets.addItem (1, "Neon Green");
+    presets.addItem (2, "Electric Blue");
+    presets.addItem (3, "Cyberpunk Purple");
+    presets.addItem (4, "Neon Red");
+    presets.addItem (5, "Sunset Orange");
+    presets.addItem (6, "Monochrome");
+
+    custom.addItem (20, "Background");
+    custom.addItem (21, "Waveform");
+    custom.addItem (22, "Accent");
+    custom.addItem (23, "Grid");
+    custom.addItem (24, "Sweep");
+    custom.addItem (25, "Text");
+
+    menu.addSubMenu ("Themes", presets);
+    menu.addSubMenu ("Custom Colors", custom);
+
+    menu.addSeparator();
+    menu.addItem (30, "Reset to Default");
+
+    menu.showMenuAsync (
+        PopupMenu::Options()
+            .withTargetComponent (&themeButton),
+
+        [this] (int result)
+        {
+            if (result >= 1 && result <= 6)
+            {
+                applyTheme (result);
+            }
+            else if (result >= 20 && result <= 25)
+            {
+                openColourPicker (result - 20);
+            }
+            else if (result == 30)
+            {
+                applyTheme (1);
+            }
+        });
+}
+
+void SynthVisualizerEditor::applyTheme (int themeId)
+{
+    switch (themeId)
+    {
+        case 1: // Neon Green
+            theme.background = Colour (0xff07100d);
+            theme.accent     = Colour (0xff00ff99);
+            theme.waveform   = Colour (0xff00ff99);
+            theme.waveform2  = Colour (0xffaaffcc);
+            theme.grid       = Colour (0xff183d2d);
+            theme.sweep      = Colour (0xffb8ffd2);
+            theme.text       = Colours::white;
+            break;
+
+        case 2: // Electric Blue
+            theme.background = Colour (0xff050b18);
+            theme.accent     = Colour (0xff00aaff);
+            theme.waveform   = Colour (0xff00e5ff);
+            theme.waveform2  = Colour (0xff5577ff);
+            theme.grid       = Colour (0xff172b50);
+            theme.sweep      = Colour (0xffaaddff);
+            theme.text       = Colours::white;
+            break;
+
+        case 3: // Cyberpunk Purple
+            theme.background = Colour (0xff10051b);
+            theme.accent     = Colour (0xffc000ff);
+            theme.waveform   = Colour (0xffe040ff);
+            theme.waveform2  = Colour (0xffff55bb);
+            theme.grid       = Colour (0xff35154a);
+            theme.sweep      = Colour (0xffffaaff);
+            theme.text       = Colours::white;
+            break;
+
+        case 4: // Neon Red
+            theme.background = Colour (0xff160707);
+            theme.accent     = Colour (0xffff3344);
+            theme.waveform   = Colour (0xffff3344);
+            theme.waveform2  = Colour (0xffff8866);
+            theme.grid       = Colour (0xff451818);
+            theme.sweep      = Colour (0xffffaaaa);
+            theme.text       = Colours::white;
+            break;
+
+        case 5: // Sunset Orange
+            theme.background = Colour (0xff160b08);
+            theme.accent     = Colour (0xffff8833);
+            theme.waveform   = Colour (0xffffaa44);
+            theme.waveform2  = Colour (0xffff5577);
+            theme.grid       = Colour (0xff49301e);
+            theme.sweep      = Colour (0xffffcc88);
+            theme.text       = Colours::white;
+            break;
+
+        case 6: // Monochrome
+            theme.background = Colour (0xff080808);
+            theme.accent     = Colour (0xffdddddd);
+            theme.waveform   = Colour (0xffffffff);
+            theme.waveform2  = Colour (0xffaaaaaa);
+            theme.grid       = Colour (0xff383838);
+            theme.sweep      = Colour (0xffeeeeee);
+            theme.text       = Colours::white;
+            break;
+
+        default:
+            return;
+    }
+
+    saveTheme();
+    repaint();
+}
+
+void SynthVisualizerEditor::openColourPicker (int colourId)
+{
+    activeColourTarget = colourId;
+
+    auto selector = std::make_unique<ColourSelector>(
+        ColourSelector::showColourAtTop
+        | ColourSelector::showSliders
+        | ColourSelector::showColourspace);
+
+    selector->setCurrentColour (
+        colourId == 0 ? theme.background :
+        colourId == 1 ? theme.waveform :
+        colourId == 2 ? theme.accent :
+        colourId == 3 ? theme.grid :
+        colourId == 4 ? theme.sweep :
+                        theme.text);
+
+    selector->setSize (300, 350);
+    selector->addChangeListener (this);
+
+    CallOutBox::launchAsynchronously (
+        std::move (selector),
+        themeButton.getScreenBounds(),
+        nullptr);
+}
+
+void SynthVisualizerEditor::changeListenerCallback (
+    ChangeBroadcaster* source)
+{
+    auto* selector = dynamic_cast<ColourSelector*> (source);
+
+    if (selector == nullptr)
+        return;
+
+    const auto colour = selector->getCurrentColour();
+
+    switch (activeColourTarget)
+    {
+        case 0: theme.background = colour; break;
+        case 1:
+            theme.waveform = colour;
+            break;
+        case 2: theme.accent = colour; break;
+        case 3: theme.grid = colour; break;
+        case 4: theme.sweep = colour; break;
+        case 5: theme.text = colour; break;
+        default: return;
+    }
+
+    saveTheme();
+    repaint();
+}
+
+void SynthVisualizerEditor::saveTheme()
+{
+    auto state = proc.apvts.state;
+
+    state.setProperty ("themeBackground",
+                       theme.background.toString(), nullptr);
+
+    state.setProperty ("themeAccent",
+                       theme.accent.toString(), nullptr);
+
+    state.setProperty ("themeWaveform",
+                       theme.waveform.toString(), nullptr);
+
+    state.setProperty ("themeWaveform2",
+                       theme.waveform2.toString(), nullptr);
+
+    state.setProperty ("themeGrid",
+                       theme.grid.toString(), nullptr);
+
+    state.setProperty ("themeSweep",
+                       theme.sweep.toString(), nullptr);
+
+    state.setProperty ("themeText",
+                       theme.text.toString(), nullptr);
+}
+
+void SynthVisualizerEditor::loadTheme()
+{
+    auto state = proc.apvts.state;
+
+    theme.background = Colour::fromString (
+        state.getProperty ("themeBackground", "ff07050d").toString());
+
+    theme.accent = Colour::fromString (
+        state.getProperty ("themeAccent", "ff00e5ff").toString());
+
+    theme.waveform = Colour::fromString (
+        state.getProperty ("themeWaveform", "ff00e5ff").toString());
+
+    theme.waveform2 = Colour::fromString (
+        state.getProperty ("themeWaveform2", "ffff3da8").toString());
+
+    theme.grid = Colour::fromString (
+        state.getProperty ("themeGrid", "ff1c1438").toString());
+
+    theme.sweep = Colour::fromString (
+        state.getProperty ("themeSweep", "ffff3da8").toString());
+
+    theme.text = Colour::fromString (
+        state.getProperty ("themeText", "ffffffff").toString());
+}
+
+loadTheme();
