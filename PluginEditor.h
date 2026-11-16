@@ -7,7 +7,8 @@
 #include <vector>
 
 class SynthVisualizerEditor : public juce::AudioProcessorEditor,
-                              private juce::Timer
+                             private juce::Timer,
+                             private juce::ChangeListener
 {
 public:
     explicit SynthVisualizerEditor (SynthVisualizerProcessor&);
@@ -32,6 +33,19 @@ private:
     void drawScope     (juce::Graphics&, juce::Rectangle<float>);
     void drawRadial    (juce::Graphics&, juce::Rectangle<float>);
     void drawParticles (juce::Graphics&, juce::Rectangle<float>);
+    void openThemeMenu();
+    void applyTheme (int themeId);
+    void saveTheme();
+    void loadTheme();
+    
+    void openColourPicker (int colourId);
+    void changeListenerCallback (juce::ChangeBroadcaster*) override;
+    
+    ThemeColours theme;
+    
+    juce::TextButton themeButton { "⚙" };
+    
+    int activeColourTarget = -1;
 
     SynthVisualizerProcessor& proc;
 
