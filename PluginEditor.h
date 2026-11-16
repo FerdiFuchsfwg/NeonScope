@@ -7,10 +7,20 @@
 #include <vector>
 
 class SynthVisualizerEditor : public juce::AudioProcessorEditor,
-                             private juce::Timer,
-                             private juce::ChangeListener
+                              private juce::Timer,
+                              private juce::ChangeListener
 {
 public:
+    struct ThemeColours
+{
+    juce::Colour background { 0xff07050d };
+    juce::Colour accent     { 0xff00e5ff };      
+    juce::Colour waveform   { 0xff00e5ff };
+    juce::Colour waveform2  { 0xffff3da8 };
+    juce::Colour grid       { 0xff1c1438 };
+    juce::Colour sweep      { 0xffff3da8 };
+    juce::Colour text       { 0xffffffff };
+};
     explicit SynthVisualizerEditor (SynthVisualizerProcessor&);
     ~SynthVisualizerEditor() override;
 
@@ -72,4 +82,5 @@ private:
     juce::Random rng;
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (SynthVisualizerEditor)
+    ThemeColours theme;
 };
