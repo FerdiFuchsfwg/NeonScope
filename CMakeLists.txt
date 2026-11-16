@@ -25,8 +25,8 @@ juce_add_plugin(SynthVisualizer
     COPY_PLUGIN_AFTER_BUILD FALSE)
 
 target_sources(SynthVisualizer PRIVATE
-    Source/PluginProcessor.cpp
-    Source/PluginEditor.cpp)
+    PluginProcessor.cpp
+    PluginEditor.cpp
 
 target_compile_definitions(SynthVisualizer PUBLIC
     JUCE_WEB_BROWSER=0
