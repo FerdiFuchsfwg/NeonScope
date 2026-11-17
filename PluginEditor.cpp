@@ -711,6 +711,58 @@ void SynthVisualizerEditor::applyTheme (int themeId)
     repaint();
 }
 
+void SynthVisualizerEditor::openThemeMenu()
+{
+    PopupMenu menu;
+
+    menu.addSectionHeader ("THEME PRESETS");
+
+    menu.addItem (1, "Neon Green");
+    menu.addItem (2, "Electric Blue");
+    menu.addItem (3, "Cyberpunk Purple");
+    menu.addItem (4, "Neon Red");
+    menu.addItem (5, "Sunset Orange");
+    menu.addItem (6, "Monochrome");
+
+    menu.addSeparator();
+    menu.addSectionHeader ("CUSTOM COLOURS");
+
+    menu.addItem (10, "Background...");
+    menu.addItem (11, "Waveform...");
+    menu.addItem (12, "Accent...");
+    menu.addItem (13, "Grid...");
+    menu.addItem (14, "Sweep...");
+    menu.addItem (15, "Text...");
+
+    menu.addSeparator();
+    menu.addItem (30, "Reset to Default Neon");
+
+    Component::SafePointer<SynthVisualizerEditor> safeThis (this);
+
+    menu.showMenuAsync (
+        PopupMenu::Options().withTargetComponent (&themeButton),
+        [safeThis] (int result)
+        {
+            if (safeThis == nullptr || result == 0)
+                return;
+
+            if (result >= 1 && result <= 6)
+            {
+                safeThis->applyTheme (result);
+            }
+            else if (result >= 10 && result <= 15)
+            {
+                safeThis->openColourPicker (result - 10);
+            }
+            else if (result == 30)
+            {
+                safeThis->theme = ThemeColours {};
+                safeThis->saveTheme();
+                safeThis->repaint();
+            }
+        });
+}
+
 void SynthVisualizerEditor::openColourPicker (int colourId)
 {
     activeColourTarget = colourId;
