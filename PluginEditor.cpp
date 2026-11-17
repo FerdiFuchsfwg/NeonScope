@@ -521,8 +521,7 @@ void SynthVisualizerEditor::drawScope (Graphics& g, Rectangle<float> r)
 
 //==============================================================================
 void SynthVisualizerEditor::drawRadial (Graphics& g, Rectangle<float> r)
-
-    // Theme background
+{
     ColourGradient bg (
         theme.background.brighter (0.35f),
         r.getCentreX(), r.getCentreY(),
@@ -534,7 +533,8 @@ void SynthVisualizerEditor::drawRadial (Graphics& g, Rectangle<float> r)
     g.setGradientFill (bg);
     g.fillRect (r);
 
-    const float cx = r.getCentreX(), cy = r.getCentreY();
+    const float cx = r.getCentreX();
+    const float cy = r.getCentreY();
     const float m = jmin (r.getWidth(), r.getHeight());
     const float baseR = m * 0.18f * (1.0f + 0.2f * bass + 0.15f * beat);
     const int segs = numBands * 2;
@@ -544,7 +544,8 @@ void SynthVisualizerEditor::drawRadial (Graphics& g, Rectangle<float> r)
         const int idx = s < numBands ? s : segs - 1 - s;
         const float ang = rotation + (float) s / (float) segs * MathConstants<float>::twoPi;
         const float len = bands[(size_t) idx] * m * 0.28f + 2.0f;
-        const float dx = std::cos (ang), dy = std::sin (ang);
+        const float dx = std::cos (ang);
+        const float dy = std::sin (ang);
 
         const float position = (float) s / (float) segs;
 
@@ -565,13 +566,11 @@ void SynthVisualizerEditor::drawRadial (Graphics& g, Rectangle<float> r)
         );
     }
 
-    // Main ring
     Path ring;
     ring.addEllipse (cx - baseR, cy - baseR, baseR * 2.0f, baseR * 2.0f);
 
     glowStroke (g, ring, theme.waveform, 1.5f);
 
-    // Inner glowing core
     const float core = baseR * (0.35f + 0.5f * level);
 
     g.setGradientFill (
@@ -585,7 +584,7 @@ void SynthVisualizerEditor::drawRadial (Graphics& g, Rectangle<float> r)
     );
 
     g.fillEllipse (cx - core, cy - core, core * 2.0f, core * 2.0f);
-}
+}    
 //==============================================================================
 void SynthVisualizerEditor::drawParticles (Graphics& g, Rectangle<float> r)
 {
