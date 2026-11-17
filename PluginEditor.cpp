@@ -254,10 +254,13 @@ void SynthVisualizerEditor::paint (Graphics& g)
     }
     g.restoreState();
 
-    g.setColour (Colour (0xff120a24));
-    g.fillRect (0.0f, 0.0f, area.getWidth(), topBar);
-    g.setColour (Colour (0xff00e5ff).withAlpha (0.5f));
-    g.fillRect (0.0f, topBar - 1.0f, area.getWidth(), 1.0f);
+    // Obere Plugin-Leiste in derselben Farbe wie der Hintergrund
+g.setColour (theme.background);
+g.fillRect (0.0f, 0.0f, area.getWidth(), topBar);
+
+// Dezente Trennlinie in der Theme-Akzentfarbe
+g.setColour (theme.accent.withAlpha (0.5f));
+g.fillRect (0.0f, topBar - 1.0f, area.getWidth(), 1.0f);
 }
 
 //==============================================================================
