@@ -77,8 +77,11 @@ SynthVisualizerEditor::SynthVisualizerEditor (SynthVisualizerProcessor& p)
     modeAtt = std::make_unique<AudioProcessorValueTreeState::ComboBoxAttachment> (proc.apvts, "mode", modeBox);
     gainAtt = std::make_unique<AudioProcessorValueTreeState::SliderAttachment>   (proc.apvts, "gain", gainSlider);
 
+    // Freies Vergrößern und Verkleinern
     setResizable (true, true);
-    setResizeLimits (480, 300, 2600, 1500);
+    // Mindestgröße: 180 x 170 Pixel
+    // Maximalgröße: 2600 x 1500 Pixel
+    setResizeLimits (180, 170, 2600, 1500);
     setSize (900, 520);
 
     startTimerHz (60);
