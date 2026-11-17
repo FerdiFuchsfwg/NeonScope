@@ -518,9 +518,10 @@ void SynthVisualizerEditor::drawScope (Graphics& g, Rectangle<float> r)
     glowStroke (g, build (scopeL), theme.waveform, 1.6f);
     glowStroke (g, build (scopeR), theme.waveform2, 1.6f);
 }
+
 //==============================================================================
-}void SynthVisualizerEditor::drawRadial (Graphics& g, Rectangle<float> r)
-{
+void SynthVisualizerEditor::drawRadial (Graphics& g, Rectangle<float> r)
+
     // Theme background
     ColourGradient bg (
         theme.background.brighter (0.35f),
